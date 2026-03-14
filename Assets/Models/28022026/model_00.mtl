@@ -1,0 +1,11 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v5.4.295444892)
+
+newmtl Dummy
+Kd 0.600000024 0.600000024 0.600000024
+illum 1
+
+newmtl msh615d.tmp.jpg
+illum 1
+map_Kd msh615d.tmp.jpg
+
