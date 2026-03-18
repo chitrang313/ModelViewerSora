@@ -30,8 +30,13 @@ public class Compass3D:MonoBehaviour {
     // Cached boundary points
     private Vector3 centerPt, northPt, southPt, eastPt, westPt;
     private bool hasData = false;
-
-    [ContextMenu("Generate Compass From CSV")]
+    private void OnEnable() {
+        AppManager.instance.onDataProcessedEvent.AddListener(GenerateCompassFromData);
+    }
+    private void OnDisable() {
+        AppManager.instance.onDataProcessedEvent.RemoveListener(GenerateCompassFromData);
+    }
+    //[ContextMenu("Generate Compass From CSV")]
     public void GenerateCompassFromData() {
         if (csvDataFile == null) {
             Debug.LogError("Please assign your CSV data file to the Compass script!");

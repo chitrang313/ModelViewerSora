@@ -64,13 +64,16 @@ public class LidarDataMapper:MonoBehaviour {
     private double minOriginalY, maxOriginalY;
     private double minElev, maxElev;
     private bool hasBounds = false;
-
-    void Start() {
+    private void Awake() {
         meshCollider = GetComponent<MeshCollider>();
-        ParseCSVData();
     }
-
-    [ContextMenu("Load CSV for Editor Preview")]
+    private void OnEnable() {
+        AppManager.instance.onDataProcessedEvent.AddListener(ParseCSVData);
+    }
+    private void OnDisable() {
+        AppManager.instance.onDataProcessedEvent.RemoveListener(ParseCSVData);
+    }
+    //[ContextMenu("Load CSV for Editor Preview")]
     void ParseCSVData() {
         if (csvDataFile == null) {
             Debug.LogError("CSV Data File is not assigned!");

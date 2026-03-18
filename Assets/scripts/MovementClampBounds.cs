@@ -60,6 +60,6 @@ public class MovementClampBounds : MonoBehaviour
 
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.color = clampGizmoColor;
-        Gizmos.DrawWireCube(clampBoundsCenter, ClampBoundsSize);
+        Gizmos.DrawWireCube(clampBoundsCenter, clampBoundsSize);
     }
 }

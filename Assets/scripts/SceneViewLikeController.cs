@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-public class SceneViewLikeController : MonoBehaviour
-{
+public class SceneViewLikeController:MonoBehaviour {
     [Header("Camera")]
     [SerializeField] private Camera targetCamera;
     [SerializeField] private LayerMask focusMask = ~0;
@@ -39,22 +38,18 @@ public class SceneViewLikeController : MonoBehaviour
     private Vector3 orbitStartMousePosition;
     private bool orbitDragActive;
 
-    private void Awake()
-    {
-        if (targetCamera == null)
-        {
+    private void Awake() {
+        if (targetCamera == null) {
             targetCamera = Camera.main;
         }
 
-        if (targetCamera == null)
-        {
+        if (targetCamera == null) {
             enabled = false;
             Debug.LogError("SceneViewLikeController needs a target camera.");
             return;
         }
 
-        if (movementClamp == null)
-        {
+        if (movementClamp == null) {
             movementClamp = GetComponent<MovementClampBounds>();
         }
 
@@ -62,10 +57,8 @@ public class SceneViewLikeController : MonoBehaviour
         InitializeFromCamera();
     }
 
-    private void Update()
-    {
-        if (!isInitialized)
-        {
+    private void Update() {
+        if (!isInitialized) {
             return;
         }
 
@@ -77,91 +70,75 @@ public class SceneViewLikeController : MonoBehaviour
         bool dragZooming = alt && rightMouse;
         bool flying = rightMouse && !alt;
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
+        if (Input.GetKeyDown(KeyCode.F)) {
             RecenterPivot();
         }
 
-        if (alt && Input.GetMouseButtonDown(0))
-        {
+        if (alt && Input.GetMouseButtonDown(0)) {
             orbitStartMousePosition = Input.mousePosition;
             orbitDragActive = false;
         }
 
-        if (!orbiting)
-        {
+        if (!orbiting) {
             orbitDragActive = false;
         }
 
-        if (orbiting)
-        {
-            if (!orbitDragActive)
-            {
+        if (orbiting) {
+            if (!orbitDragActive) {
                 Vector3 mouseDeltaFromPress = Input.mousePosition - orbitStartMousePosition;
                 float sqrThreshold = orbitDragThresholdPixels * orbitDragThresholdPixels;
                 orbitDragActive = mouseDeltaFromPress.sqrMagnitude >= sqrThreshold;
             }
 
-            if (orbitDragActive)
-            {
-                Orbit(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+            if (orbitDragActive) {
+                Orbit(Input.GetAxisRaw("Mouse X"),Input.GetAxisRaw("Mouse Y"));
             }
         }
 
-        if (panning)
-        {
-            Pan(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+        if (panning) {
+            Pan(Input.GetAxisRaw("Mouse X"),Input.GetAxisRaw("Mouse Y"));
         }
 
-        if (dragZooming)
-        {
+        if (dragZooming) {
             Zoom(Input.GetAxisRaw("Mouse Y") * dragZoomSensitivity);
         }
 
         float scroll = Input.mouseScrollDelta.y;
-        if (!Mathf.Approximately(scroll, 0f))
-        {
+        if (!Mathf.Approximately(scroll,0f)) {
             Zoom(scroll * scrollZoomSensitivity);
         }
 
-        if (flying)
-        {
-            Fly(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+        if (flying) {
+            Fly(Input.GetAxisRaw("Mouse X"),Input.GetAxisRaw("Mouse Y"));
         }
 
         ApplyClampIfAvailable();
     }
 
-    private void InitializeFromCamera()
-    {
+    private void InitializeFromCamera() {
         Vector3 euler = camTransform.rotation.eulerAngles;
         yaw = euler.y;
         pitch = NormalizePitch(euler.x);
 
-        if (!TryGetWorldPointUnderScreenPoint(Input.mousePosition, out pivot))
-        {
+        if (!TryGetWorldPointUnderScreenPoint(Input.mousePosition,out pivot)) {
             pivot = camTransform.position + camTransform.forward * fallbackFocusDistance;
         }
 
-        distanceToPivot = Mathf.Max(minDistance, Vector3.Distance(camTransform.position, pivot));
+        distanceToPivot = Mathf.Max(minDistance,Vector3.Distance(camTransform.position,pivot));
         ApplyClampIfAvailable();
         isInitialized = true;
     }
 
-    private void RecenterPivot()
-    {
-        if (TryGetWorldPointUnderScreenPoint(Input.mousePosition, out Vector3 hitPoint))
-        {
+    private void RecenterPivot() {
+        if (TryGetWorldPointUnderScreenPoint(Input.mousePosition,out Vector3 hitPoint)) {
             pivot = hitPoint;
-            distanceToPivot = Mathf.Max(minDistance, Vector3.Distance(camTransform.position, pivot));
+            distanceToPivot = Mathf.Max(minDistance,Vector3.Distance(camTransform.position,pivot));
         }
     }
 
-    private bool TryGetWorldPointUnderScreenPoint(Vector3 screenPoint, out Vector3 worldPoint)
-    {
+    private bool TryGetWorldPointUnderScreenPoint(Vector3 screenPoint,out Vector3 worldPoint) {
         Ray ray = targetCamera.ScreenPointToRay(screenPoint);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, focusMask, QueryTriggerInteraction.Ignore))
-        {
+        if (Physics.Raycast(ray,out RaycastHit hit,Mathf.Infinity,focusMask,QueryTriggerInteraction.Ignore)) {
             worldPoint = hit.point;
             return true;
         }
@@ -170,19 +147,17 @@ public class SceneViewLikeController : MonoBehaviour
         return false;
     }
 
-    private void Orbit(float mouseX, float mouseY)
-    {
+    private void Orbit(float mouseX,float mouseY) {
         yaw += mouseX * orbitSensitivity;
-        pitch = Mathf.Clamp(pitch - mouseY * orbitSensitivity, minPitch, maxPitch);
+        pitch = Mathf.Clamp(pitch - mouseY * orbitSensitivity,minPitch,maxPitch);
 
-        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
+        Quaternion rotation = Quaternion.Euler(pitch,yaw,0f);
         camTransform.rotation = rotation;
         camTransform.position = pivot - (rotation * Vector3.forward * distanceToPivot);
     }
 
-    private void Pan(float mouseX, float mouseY)
-    {
-        float panScale = targetCamera.orthographic ? targetCamera.orthographicSize : Mathf.Max(1f, distanceToPivot);
+    private void Pan(float mouseX,float mouseY) {
+        float panScale = targetCamera.orthographic ? targetCamera.orthographicSize : Mathf.Max(1f,distanceToPivot);
         Vector3 delta =
             (-camTransform.right * mouseX - camTransform.up * mouseY) *
             panSensitivity * panScale;
@@ -191,67 +166,63 @@ public class SceneViewLikeController : MonoBehaviour
         pivot += delta;
     }
 
-    private void Zoom(float zoomInput)
-    {
-        if (targetCamera.orthographic)
-        {
-            targetCamera.orthographicSize = Mathf.Max(minOrthoSize, targetCamera.orthographicSize - zoomInput);
+    private void Zoom(float zoomInput) {
+        if (targetCamera.orthographic) {
+            targetCamera.orthographicSize = Mathf.Max(minOrthoSize,targetCamera.orthographicSize - zoomInput);
             return;
         }
 
-        distanceToPivot = Mathf.Max(minDistance, distanceToPivot - zoomInput);
+        distanceToPivot = Mathf.Max(minDistance,distanceToPivot - zoomInput);
         camTransform.position = pivot - (camTransform.forward * distanceToPivot);
     }
 
-    private void Fly(float mouseX, float mouseY)
-    {
+    private void Fly(float mouseX,float mouseY) {
         yaw += mouseX * lookSensitivity;
-        pitch = Mathf.Clamp(pitch - mouseY * lookSensitivity, minPitch, maxPitch);
-        camTransform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        pitch = Mathf.Clamp(pitch - mouseY * lookSensitivity,minPitch,maxPitch);
+        camTransform.rotation = Quaternion.Euler(pitch,yaw,0f);
 
         Vector3 moveInput = Vector3.zero;
-        if (Input.GetKey(KeyCode.W)) moveInput += Vector3.forward;
-        if (Input.GetKey(KeyCode.S)) moveInput += Vector3.back;
-        if (Input.GetKey(KeyCode.D)) moveInput += Vector3.right;
-        if (Input.GetKey(KeyCode.A)) moveInput += Vector3.left;
-        if (Input.GetKey(KeyCode.E)) moveInput += Vector3.up;
-        if (Input.GetKey(KeyCode.Q)) moveInput += Vector3.down;
+        if (Input.GetKey(KeyCode.W))
+            moveInput += Vector3.forward;
+        if (Input.GetKey(KeyCode.S))
+            moveInput += Vector3.back;
+        if (Input.GetKey(KeyCode.D))
+            moveInput += Vector3.right;
+        if (Input.GetKey(KeyCode.A))
+            moveInput += Vector3.left;
+        if (Input.GetKey(KeyCode.E))
+            moveInput += Vector3.up;
+        if (Input.GetKey(KeyCode.Q))
+            moveInput += Vector3.down;
 
-        if (moveInput.sqrMagnitude > 1f)
-        {
+        if (moveInput.sqrMagnitude > 1f) {
             moveInput.Normalize();
         }
 
         float speed = flySpeed;
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-        {
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
             speed *= fastFlyMultiplier;
         }
-        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-        {
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) {
             speed *= slowFlyMultiplier;
         }
 
         Vector3 worldMove = camTransform.TransformDirection(moveInput) * speed * Time.unscaledDeltaTime;
         camTransform.position += worldMove;
         pivot += worldMove;
-        distanceToPivot = Mathf.Max(minDistance, Vector3.Distance(camTransform.position, pivot));
+        distanceToPivot = Mathf.Max(minDistance,Vector3.Distance(camTransform.position,pivot));
     }
 
-    private void ApplyClampIfAvailable()
-    {
-        if (movementClamp == null)
-        {
+    private void ApplyClampIfAvailable() {
+        if (movementClamp == null) {
             return;
         }
 
-        movementClamp.ClampCameraAndPivot(camTransform, ref pivot, ref distanceToPivot, minDistance);
+        movementClamp.ClampCameraAndPivot(camTransform,ref pivot,ref distanceToPivot,minDistance);
     }
 
-    private static float NormalizePitch(float rawPitch)
-    {
-        if (rawPitch > 180f)
-        {
+    private static float NormalizePitch(float rawPitch) {
+        if (rawPitch > 180f) {
             rawPitch -= 360f;
         }
 
