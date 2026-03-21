@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class SceneViewLikeController:MonoBehaviour {
+public class SceneViewLikeController:MonoBehaviour, IControllable {
     [Header("Camera")]
     [SerializeField] private Camera targetCamera;
     [SerializeField] private LayerMask focusMask = ~0;
@@ -38,6 +38,14 @@ public class SceneViewLikeController:MonoBehaviour {
     private Vector3 orbitStartMousePosition;
     private bool orbitDragActive;
 
+    // Initial State Variables
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+    private bool initialIsOrthographic;
+    private float initialOrthographicSize;
+    private float initialFieldOfView;
+    private bool hasSavedInitialState;
+
     private void Awake() {
         if (targetCamera == null) {
             targetCamera = Camera.main;
@@ -54,6 +62,16 @@ public class SceneViewLikeController:MonoBehaviour {
         }
 
         camTransform = targetCamera.transform;
+
+        SaveInitialState();
+    }
+
+    private void OnEnable() {
+        if (!hasSavedInitialState || targetCamera == null) {
+            return;
+        }
+
+        RestoreInitialState();
         InitializeFromCamera();
     }
 
@@ -113,6 +131,26 @@ public class SceneViewLikeController:MonoBehaviour {
         }
 
         ApplyClampIfAvailable();
+    }
+
+    private void SaveInitialState() {
+        if (hasSavedInitialState)
+            return;
+
+        initialPosition = camTransform.position;
+        initialRotation = camTransform.rotation;
+        initialIsOrthographic = targetCamera.orthographic;
+        initialOrthographicSize = targetCamera.orthographicSize;
+        initialFieldOfView = targetCamera.fieldOfView;
+
+        hasSavedInitialState = true;
+    }
+
+    private void RestoreInitialState() {
+        camTransform.SetPositionAndRotation(initialPosition,initialRotation);
+        targetCamera.orthographic = initialIsOrthographic;
+        targetCamera.orthographicSize = initialOrthographicSize;
+        targetCamera.fieldOfView = initialFieldOfView;
     }
 
     private void InitializeFromCamera() {
@@ -227,5 +265,13 @@ public class SceneViewLikeController:MonoBehaviour {
         }
 
         return rawPitch;
+    }
+
+    public void EnableControl() {
+        this.enabled = true;
+    }
+
+    public void DisableControl() {
+        this.enabled = false;
     }
 }

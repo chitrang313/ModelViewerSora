@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraTopDownControl:MonoBehaviour {
+public class CameraTopDownControl:MonoBehaviour, IControllable {
     [Header("Camera")]
     [SerializeField] private Camera targetCamera;
     [SerializeField] private Transform modelRoot;
@@ -186,5 +186,13 @@ public class CameraTopDownControl:MonoBehaviour {
             movementClamp.ClampBoundsCenter.z + halfBounds.z);
 
         camTransform.position = movementClamp.transform.TransformPoint(localCameraPosition);
+    }
+
+    public void EnableControl() {
+        this.enabled = true;
+    }
+
+    public void DisableControl() {
+        this.enabled = false;
     }
 }
