@@ -26,6 +26,12 @@ public class AppManager:MonoBehaviour {
     [SerializeField] private List<IControllable> controlls;
 
     [HideInInspector] public UnityEvent onDataProcessedEvent;
+
+    [Space(4)]
+    [SerializeField] private TextMeshProUGUI howToUseControlText;
+    [SerializeField][TextArea(3,10)] private string scemeViewLikeControlText;
+    [SerializeField][TextArea(3,10)] private string cameraTopDownControlText;
+
     private void Awake() {
         Singletone();
         processDataButton.onClick.RemoveAllListeners();
@@ -44,6 +50,12 @@ public class AppManager:MonoBehaviour {
             controll.DisableControl();
         }
         controlls[(int)this.selectedControlType].EnableControl();
+        
+        howToUseControlText.text = this.selectedControlType switch {
+            ControlMode.SceneViewLike => scemeViewLikeControlText,
+            ControlMode.TopDown => cameraTopDownControlText,
+            _ => howToUseControlText.text
+        };
     }
 
     private void Singletone() {
